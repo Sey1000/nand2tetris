@@ -1,6 +1,10 @@
-This repository is a personal remote project save for this course https://www.coursera.org/learn/build-a-computer
+# About
 
-The official website is https://www.nand2tetris.org/
+This repository is a personal remote project save for this course:  
+https://www.coursera.org/learn/build-a-computer
+
+The official website is:  
+https://www.nand2tetris.org/
 
 And highly, highly recommended 👍
 
