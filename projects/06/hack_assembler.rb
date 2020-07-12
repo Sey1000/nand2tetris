@@ -1,20 +1,24 @@
 #!/usr/bin/env ruby
 require_relative './parser'
+require_relative './label_handler'
 
 class HackAssembler
-  def initialize(input_file, output_file_path)
-    @input_file = input_file
+  def initialize(input_file_path, output_file_path)
+    @input_file_path = input_file_path
     @output_file_path = output_file_path
-    # TODO: @symbol_table = symbol_table
+    @symbol_table = default_symbol_table
   end
 
   def run
-    # TODO: First pass --> only read and save symbols to symbol_table
+    # First pass --> only read and save symbols to symbol_table
+    @symbol_table = LabelHandler.new(@symbol_table, @input_file_path).generate!
+    parser = Parser.new(@symbol_table)
     # Second pass --> read and translate line by line
     File.open(@output_file_path, 'w') do |f|
-      @input_file.each do |line|
+      File.foreach(@input_file_path) do |line|
         next if comment_or_empty_line?(line.strip!)
-        parsed_line = Parser.new(line).parse
+        next if label_declaration_line?(line)
+        parsed_line = parser.parse(line)
         f.write(parsed_line + "\n")
       end
     end
@@ -26,6 +30,15 @@ class HackAssembler
     return true if line.empty?
     return true if line.start_with?('//')
     false
+  end
+
+  def default_symbol_table
+    @default_symbol_table ||= (0..15).to_a.map { |ind| ["R#{ind}", ind] }.to_h
+      .merge('SCREEN' => 16384, 'KBD' => 24576, 'SP' => 0, 'LCL' => 1, 'ARG' => 2, 'THIS' => 3, 'THAT' => 4)
+  end
+
+  def label_declaration_line?(line)
+    line.start_with?('(')
   end
 end
 
